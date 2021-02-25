@@ -1,0 +1,43 @@
+<h2>Hours Manager</h2>
+
+<table>
+    <thead>
+        <th></th>
+        <th>ID</th>
+        <th>Date</th>
+        <th>Ticket</th>
+        <th>Title</th>
+        <th>Comment</th>
+        <th>Hours</th>
+    </thead>
+    <tbody>
+        {{range .hours}}
+        <tr>
+            <td><input type="checkbox" data-id=""></td>
+            <td>#TODO</td>
+            <td>{{.Date}}</td>
+            <td>{{.Ticket}}</td>
+            <td>{{.Title}}</td>
+            <td>{{.Comment}}</td>
+            <td>{{.Hours}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
+<h3>Summary</h3>
+
+<table>
+    <thead>
+        <th>Date</th>
+        <th>Hours</th>
+    </thead>
+    <tbody>
+        {{range .summary}}
+        <tr>
+            <td>{{.Date}}</td>
+            <td>{{.Hours}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
