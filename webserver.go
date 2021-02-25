@@ -9,6 +9,8 @@ import (
 	"github.com/sarulabs/di"
 )
 
+const baseTitle = "Hours Manager by λ"
+
 func listHours(ctx iris.Context, cnt di.Container) {
 	var (
 		hours        []records.Hours
@@ -42,6 +44,7 @@ func listHours(ctx iris.Context, cnt di.Container) {
 	}
 
 	data := iris.Map{
+		"title":   baseTitle + " - Index",
 		"hours":   hours,
 		"summary": hoursSummary,
 	}
@@ -73,7 +76,6 @@ func serve(cnt di.Container) {
 	/*
 		hoursTemplatesAPI := app.Party("/hoursTpl")
 		{
-
 				hoursTemplatesAPI.Get("/", listTemplates)
 				hoursTemplatesAPI.Get("/add", addTemplateInterface)
 

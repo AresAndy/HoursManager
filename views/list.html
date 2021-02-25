@@ -1,43 +1,91 @@
-<h2>Hours Manager</h2>
+<div class="row">
+    <div class="col-md-8">
+        <h2>Hours</h2>
+    </div>
+    <div class="col-md-4">
+        <div class="btn-group float-right" role="group">
+            <button class="btn btn-primary" type="button">
+                Add
+            </button> 
+            <button class="btn btn-info" type="button">
+                Add With Template
+            </button> 
+            <button class="btn btn-danger" type="button">
+                Delete
+            </button> 
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+                <th></th>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Ticket</th>
+                <th>Title</th>
+                <th>Comment</th>
+                <th>Hours</th>
+            </thead>
+            <tbody>
+                {{range .hours}}
+                <tr>
+                    <td><input type="checkbox" class="form-control"></td>
+                    <td>TODO</td>
+                    <td>{{.Date}}</td>
+                    <td>{{.Ticket}}</td>
+                    <td>{{.Title}}</td>
+                    <td>{{.Comment}}</td>
+                    <td>{{.Hours}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12" style="margin-top: 35px;">
+        <h3>Summary</h3>
+        <table class="table table-striped">
+            <thead>
+                <th>Date</th>
+                <th>Hours</th>
+            </thead>
+            <tbody>
+                {{range .summary}}
+                <tr>
+                    <td>{{.Date}}</td>
+                    <td>{{.Hours}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<table>
-    <thead>
-        <th></th>
-        <th>ID</th>
-        <th>Date</th>
-        <th>Ticket</th>
-        <th>Title</th>
-        <th>Comment</th>
-        <th>Hours</th>
-    </thead>
-    <tbody>
-        {{range .hours}}
-        <tr>
-            <td><input type="checkbox" data-id=""></td>
-            <td>#TODO</td>
-            <td>{{.Date}}</td>
-            <td>{{.Ticket}}</td>
-            <td>{{.Title}}</td>
-            <td>{{.Comment}}</td>
-            <td>{{.Hours}}</td>
-        </tr>
-        {{end}}
-    </tbody>
-</table>
-
-<h3>Summary</h3>
-
-<table>
-    <thead>
-        <th>Date</th>
-        <th>Hours</th>
-    </thead>
-    <tbody>
-        {{range .summary}}
-        <tr>
-            <td>{{.Date}}</td>
-            <td>{{.Hours}}</td>
-        </tr>
-        {{end}}
-    </tbody>
-</table>
+<div class="modal fade" id="modal-container-536838" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">
+                    Modal title
+                </h5> 
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">
+                    Save changes
+                </button> 
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

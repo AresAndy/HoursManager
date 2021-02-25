@@ -1,12 +1,25 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Page Title</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-</head>
-<body>
-    {{ yield }}
-</body>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{.title}}</title>
+
+    <meta name="description" content="Hours manager made with ♥ by Lambda 'λ'">
+
+    <link href="pub/css/bootstrap.min.css" rel="stylesheet">
+    <link href="pub/css/style.css" rel="stylesheet">
+
+  </head>
+  <body>
+    <div class="container-fluid">
+        {{ yield }}
+    </div>
+
+    <script src="pub/js/jquery.min.js"></script>
+    <script src="pub/js/bootstrap.min.js"></script>
+    <script src="pub/js/scripts.js"></script>
+  </body>
 </html>
