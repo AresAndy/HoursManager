@@ -1,18 +1,17 @@
 <div class="row">
     <div class="col-md-12">
-        <h2>Hours</h2>
+        <h2>Hour Templates Editor</h2>
     </div>
 </div>
 <div class="row">
     <div class="col-md-10">
         <div class="btn-group float-left" role="group">
-            <a class="btn btn-primary" href="/templates">Templates</a> 
+            <a class="btn btn-primary" href="/hours">Back to Manager</a>
         </div>
     </div>
     <div class="col-md-2">
         <div class="btn-group float-right" role="group">
-            <button class="btn btn-primary" id="add" type="button">Add</button> 
-            <button class="btn btn-info" id="addTemplate" type="button">Add With Template</button> 
+            <button class="btn btn-primary" id="add" type="button">Add</button>
             <button class="btn btn-danger" id="delete" type="button">Delete</button>
         </div>
     </div>
@@ -23,7 +22,6 @@
             <thead>
                 <th></th>
                 <th>ID</th>
-                <th>Date</th>
                 <th>Ticket</th>
                 <th>Title</th>
                 <th>Comment</th>
@@ -31,11 +29,10 @@
                 <th></th>
             </thead>
             <tbody>
-                {{range .hours}}
+                {{range .templates}}
                 <tr>
-                    <td><input type="checkbox" class="form-input" data-id="{{.Id}}"></td>
+                    <td><input type="checkbox" class="form-control" data-id="{{.Id}}"></td>
                     <td>{{.Id}}</td>
-                    <td>{{.Date}}</td>
                     <td>{{.Ticket}}</td>
                     <td>{{.Title}}</td>
                     <td>{{.Comment}}</td>
@@ -44,26 +41,7 @@
                         <input type="button" class="btn btn-info edit" data-id="{{.Id}}" value="Edit">
                         <input type="button" class="btn btn-info dup" data-id="{{.Id}}" value="Duplicate">
                         <input type="button" class="btn btn-danger delete" data-id="{{.Id}}" value="Delete">
-                    </td>
-                </tr>
-                {{end}}
-            </tbody>
-        </table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12" style="margin-top: 35px;">
-        <h3>Summary</h3>
-        <table class="table table-striped">
-            <thead>
-                <th>Date</th>
-                <th>Hours</th>
-            </thead>
-            <tbody>
-                {{range .summary}}
-                <tr>
-                    <td>{{.Date}}</td>
-                    <td>{{.Hours}}</td>
+                    <td>
                 </tr>
                 {{end}}
             </tbody>
@@ -71,4 +49,5 @@
     </div>
 </div>
 
-<script src="pub/js/list.js"></script>
+
+<script src="pub/js/listTemplates.js"></script>

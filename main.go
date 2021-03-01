@@ -36,7 +36,7 @@ func insertDailyPauseRecord(cnt di.Container) (sql.Result, error) {
 	t := time.Now()
 	fmtDate := fmt.Sprintf("%d-%d-%d", t.Year(), t.Month(), t.Day())
 
-	record := records.NewHours(cnt, fmtDate, "<REDACTED>", "Pause", "", 0.5)
+	record := records.NewHours(cnt, 0, fmtDate, "<REDACTED>", "Pause", "", 0.5)
 
 	return record.Insert()
 }
@@ -46,6 +46,20 @@ func doPause(cnt di.Container) {
 
 	if err != nil {
 		log.Fatal("doPause error: " + err.Error())
+	}
+}
+
+func clearById(cnt di.Container, id int) (sql.Result, error) {
+	db, err := cnt.SafeGet("db")
+
+	if err != nil {
+		log.Fatal("show di error: " + err.Error())
+		return nil, err
+	} else {
+		statement, _ := db.(*sql.DB).Prepare("DELETE FROM hours WHERE id = ?")
+		defer statement.Close()
+
+		return statement.Exec(id)
 	}
 }
 
@@ -157,9 +171,43 @@ func show(cnt di.Container) (*sql.Rows, error) {
 	if err != nil {
 		log.Fatal("show di error: " + err.Error())
 		return nil, err
-	} else {
-		return db.(*sql.DB).Query("SELECT * FROM hours ORDER BY date")
 	}
+
+	return db.(*sql.DB).Query("SELECT * FROM hours ORDER BY date")
+}
+
+func getHour(cnt di.Container, id int) (records.Hours, error) {
+	var hour records.Hours
+	db, err := cnt.SafeGet("db")
+
+	if err != nil {
+		log.Fatal("show di error: " + err.Error())
+		return hour, err
+	}
+
+	statement, _ := db.(*sql.DB).Prepare("SELECT * FROM hours WHERE id = ?")
+	defer statement.Close()
+
+	row := statement.QueryRow(id)
+	err = row.Scan(&hour.Id, &hour.Date, &hour.Ticket, &hour.Title, &hour.Comment, &hour.Hours)
+
+	if err != nil {
+		log.Fatal("show di error: " + err.Error())
+		return hour, err
+	}
+
+	return hour, nil
+}
+
+func showTemplates(cnt di.Container) (*sql.Rows, error) {
+	db, err := cnt.SafeGet("db")
+
+	if err != nil {
+		log.Fatal("show di error: " + err.Error())
+		return nil, err
+	}
+
+	return db.(*sql.DB).Query("SELECT * FROM hours_templates ORDER BY id")
 }
 
 func doShow(cnt di.Container) {
@@ -231,6 +279,7 @@ func main() {
 
 		record := records.NewHours(
 			cnt,
+			0,
 			insertCmdDate,
 			insertCmdTicket,
 			insertCmdTitle,

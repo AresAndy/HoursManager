@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
+	"strconv"
 
 	records "internal/hoursmngr/records"
 
@@ -53,6 +55,252 @@ func listHours(ctx iris.Context, cnt di.Container) {
 	ctx.View("list", data)
 }
 
+func listHoursTemplates(ctx iris.Context, cnt di.Container) {
+	var (
+		hoursTemplates []records.HoursTemplate
+	)
+
+	rawHoursTemplatesRows, err := showTemplates(cnt)
+	if err != nil {
+		log.Fatal("listHoursTemplates error: " + err.Error())
+	}
+	defer rawHoursTemplatesRows.Close()
+
+	for rawHoursTemplatesRows.Next() {
+		var row records.HoursTemplate
+
+		row.Scan(rawHoursTemplatesRows)
+		hoursTemplates = append(hoursTemplates, row)
+	}
+
+	data := iris.Map{
+		"title":     baseTitle + " - Templates Editor",
+		"templates": hoursTemplates,
+	}
+
+	ctx.ViewLayout("layouts/main")
+	ctx.View("listTemplates", data)
+}
+
+func addHourInterface(ctx iris.Context, cnt di.Container) {
+	data := iris.Map{
+		"modalTitle": "Add Hour",
+	}
+
+	ctx.View("edit", data)
+}
+
+func dupHourInterface(ctx iris.Context, cnt di.Container) {
+	rid := ctx.PostValue("id")
+	id, err := strconv.Atoi(rid)
+	if err != nil {
+		log.Println("addHour insert id validate error: " + err.Error())
+		ctx.SetErr(err)
+		return
+	}
+
+	hour, err := getHour(cnt, id)
+
+	data := iris.Map{
+		"modalTitle": "Edit Hour",
+		"hour":       hour,
+	}
+
+	ctx.View("duplicate", data)
+}
+
+func addTemplateInterface(ctx iris.Context, cnt di.Container) {
+	data := iris.Map{
+		"modalTitle": "Add Hour Template",
+	}
+
+	ctx.View("templateEdit", data)
+}
+
+func editHour(ctx iris.Context, cnt di.Container) {
+	rid := ctx.PostValue("id")
+	date := ctx.PostValue("date")
+	ticket := ctx.PostValue("ticket")
+	title := ctx.PostValue("title")
+	comment := ctx.PostValue("comment")
+	rhours := ctx.PostValue("hours")
+
+	hours, err := strconv.ParseFloat(rhours, 32)
+	if err != nil {
+		log.Println("addHour insert hours validate error: " + err.Error())
+		ctx.JSON(iris.Map{
+			"error": true,
+		})
+		return
+	}
+
+	record := records.NewHours(
+		cnt,
+		0,
+		date,
+		ticket,
+		title,
+		comment,
+		hours,
+	)
+
+	verr := record.Validate()
+
+	if verr != nil {
+		log.Println("addHour insert validate error: " + verr.Error())
+		ctx.JSON(iris.Map{
+			"error": true,
+		})
+		return
+	}
+
+	if rid != "" {
+		id, err := strconv.Atoi(rid)
+		if err != nil {
+			log.Println("addHour insert id validate error: " + err.Error())
+			ctx.JSON(iris.Map{
+				"error": true,
+			})
+			return
+		}
+
+		record.Id = id
+		_, err = record.Update()
+
+		if err != nil {
+			log.Println("addHour update error: " + err.Error())
+			ctx.JSON(iris.Map{
+				"error": true,
+			})
+			return
+		}
+	} else {
+		_, err := record.Insert()
+
+		if err != nil {
+			log.Println("editHour insert error: " + err.Error())
+			ctx.JSON(iris.Map{
+				"error": true,
+			})
+			return
+		}
+	}
+
+	ctx.JSON(iris.Map{})
+}
+
+func editTemplate(ctx iris.Context, cnt di.Container) {
+	rid := ctx.PostValue("id")
+	ticket := ctx.PostValue("ticket")
+	title := ctx.PostValue("title")
+	comment := ctx.PostValue("comment")
+	rhours := ctx.PostValue("hours")
+
+	hours, err := strconv.ParseFloat(rhours, 32)
+	if err != nil {
+		log.Println("addHour insert hours validate error: " + err.Error())
+		ctx.JSON(iris.Map{
+			"error": true,
+		})
+		return
+	}
+
+	record := records.NewHoursTemplate(
+		cnt,
+		0,
+		ticket,
+		title,
+		comment,
+		hours,
+	)
+
+	if rid != "" {
+		id, err := strconv.Atoi(rid)
+		if err != nil {
+			log.Println("addHour insert id validate error: " + err.Error())
+			ctx.JSON(iris.Map{
+				"error": true,
+			})
+			return
+		}
+
+		record.Id = id
+		_, err = record.Update()
+
+		if err != nil {
+			log.Println("addHour update error: " + err.Error())
+			ctx.JSON(iris.Map{
+				"error": true,
+			})
+			return
+		}
+	} else {
+		_, err := record.Insert()
+
+		if err != nil {
+			log.Println("editHour insert error: " + err.Error())
+			ctx.JSON(iris.Map{
+				"error": true,
+			})
+			return
+		}
+	}
+
+	ctx.JSON(iris.Map{})
+}
+
+func deleteHours(ctx iris.Context, cnt di.Container) {
+	rid := ctx.PostValueDefault("id", "")
+
+	if rid != "" {
+		id, err := strconv.Atoi(rid)
+		if err != nil {
+			log.Println("delete hour id validate error: " + err.Error())
+			ctx.JSON(iris.Map{
+				"error": true,
+			})
+			return
+		}
+
+		_, err = clearById(cnt, id)
+		if err != nil {
+			log.Println("delete hour error: " + err.Error())
+			ctx.JSON(iris.Map{
+				"error": true,
+			})
+			return
+		}
+	} else {
+		//TODO: debug this branch
+		var ids []int
+
+		rids := ctx.PostValueDefault("ids", "[]")
+		err := json.Unmarshal([]byte(rids), &ids)
+
+		if err != nil {
+			log.Println("delete hour ids unmarshal error: " + err.Error())
+			ctx.JSON(iris.Map{
+				"error": true,
+			})
+			return
+		}
+
+		for _, id := range ids {
+			_, err = clearById(cnt, id)
+			if err != nil {
+				log.Println("delete hour error: " + err.Error())
+				ctx.JSON(iris.Map{
+					"error": true,
+				})
+				return
+			}
+		}
+
+	}
+
+	ctx.JSON(iris.Map{})
+}
+
 func serve(cnt di.Container) {
 	app := iris.New()
 	app.HandleDir("/pub", iris.Dir("./pub"))
@@ -65,25 +313,27 @@ func serve(cnt di.Container) {
 	hoursAPI := app.Party("/hours")
 	{
 		hoursAPI.Get("/", func(ctx iris.Context) { listHours(ctx, cnt) })
-		/*
-			hoursAPI.Get("/add", addHourInterface)
-			hoursAPI.Get("/addTemplate", addHourWithTemplateInterface)
+		hoursAPI.Get("/add", func(ctx iris.Context) { addHourInterface(ctx, cnt) })
 
-			hoursAPI.Post("/add", addHour)
-			hoursAPI.Post("/delete", deleteHours)
+		hoursAPI.Post("/edit", func(ctx iris.Context) { editHour(ctx, cnt) })
+		hoursAPI.Post("/duplicate", func(ctx iris.Context) { dupHourInterface(ctx, cnt) })
+		hoursAPI.Post("/delete", func(ctx iris.Context) { deleteHours(ctx, cnt) })
+
+		/*
+			hoursAPI.Get("/addTemplate", addHourWithTemplateInterface)
 		*/
 	}
-	/*
-		hoursTemplatesAPI := app.Party("/hoursTpl")
-		{
-				hoursTemplatesAPI.Get("/", listTemplates)
-				hoursTemplatesAPI.Get("/add", addTemplateInterface)
 
-				hoursTemplatesAPI.Post("/add", addTemplate)
-				hoursTemplatesAPI.Post("/delete", deleteTemplate)
+	hoursTemplatesAPI := app.Party("/templates")
+	{
+		hoursTemplatesAPI.Get("/", func(ctx iris.Context) { listHoursTemplates(ctx, cnt) })
+		hoursTemplatesAPI.Get("/add", func(ctx iris.Context) { addTemplateInterface(ctx, cnt) })
 
-		}
-	*/
+		hoursTemplatesAPI.Post("/edit", func(ctx iris.Context) { editTemplate(ctx, cnt) })
+		/*
+			hoursTemplatesAPI.Post("/delete", deleteTemplate)
+		*/
+	}
 
 	app.Get("/", func(ctx iris.Context) {
 		r := ctx.Request()

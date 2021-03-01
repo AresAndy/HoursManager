@@ -13,8 +13,18 @@ import (
 	"github.com/sarulabs/di"
 )
 
+type HoursTemplate struct {
+	db      *sql.DB
+	Id      int
+	Ticket  string
+	Title   string
+	Comment string
+	Hours   float64
+}
+
 type Hours struct {
-    db      *sql.DB
+	db      *sql.DB
+	Id      int
 	Date    string
 	Ticket  string
 	Title   string
@@ -34,7 +44,7 @@ type HoursCalc struct {
 }
 
 func AppendHoursRecordHeader(w table.Writer) {
-	w.AppendHeader(table.Row{"Date", "Ticket", "Title", "Comment", "Hours"})
+	w.AppendHeader(table.Row{"Id", "Date", "Ticket", "Title", "Comment", "Hours"})
 	w.AppendSeparator()
 }
 
@@ -49,7 +59,7 @@ func AppendHoursCalcRecordHeader(w table.Writer) {
 }
 
 func (r Hours) AppendRow(w table.Writer) {
-	w.AppendRow([]interface{}{r.Date, r.Ticket, r.Title, r.Comment, r.Hours})
+	w.AppendRow([]interface{}{r.Id, r.Date, r.Ticket, r.Title, r.Comment, r.Hours})
 	w.AppendSeparator()
 }
 
@@ -63,8 +73,12 @@ func (r HoursCalc) AppendRow(w table.Writer) {
 	w.AppendSeparator()
 }
 
+func (r *HoursTemplate) Scan(rows *sql.Rows) {
+	rows.Scan(&r.Id, &r.Ticket, &r.Title, &r.Comment, &r.Hours)
+}
+
 func (r *Hours) Scan(rows *sql.Rows) {
-	rows.Scan(&r.Date, &r.Ticket, &r.Title, &r.Comment, &r.Hours)
+	rows.Scan(&r.Id, &r.Date, &r.Ticket, &r.Title, &r.Comment, &r.Hours)
 }
 
 func (r *HoursCompat) Scan(rows *sql.Rows) {
@@ -102,13 +116,23 @@ func readFromStdin(name string) (res string, err error) {
 	return
 }
 
-func NewHours(cnt di.Container, date string, ticket string, title string, comment string, hours float64) Hours {
-    db, err := cnt.SafeGet("db")
+func NewHours(cnt di.Container, id int, date string, ticket string, title string, comment string, hours float64) Hours {
+	db, err := cnt.SafeGet("db")
 
 	if err != nil {
 		panic(err)
 	} else {
-	    return Hours{db.(*sql.DB), date, ticket, title, comment, hours}
+		return Hours{db.(*sql.DB), id, date, ticket, title, comment, hours}
+	}
+}
+
+func NewHoursTemplate(cnt di.Container, id int, ticket string, title string, comment string, hours float64) HoursTemplate {
+	db, err := cnt.SafeGet("db")
+
+	if err != nil {
+		panic(err)
+	} else {
+		return HoursTemplate{db.(*sql.DB), id, ticket, title, comment, hours}
 	}
 }
 
@@ -185,4 +209,31 @@ func (r Hours) Insert() (sql.Result, error) {
 	defer statement.Close()
 
 	return statement.Exec(r.Date, r.Ticket, r.Title, r.Comment, r.Hours)
+}
+
+func (r Hours) Update() (sql.Result, error) {
+	statement, _ := r.db.Prepare(
+		"UPDATE hours SET date = ?, ticket = ?, title = ?, comment = ?, hours = ? WHERE id = ?",
+	)
+	defer statement.Close()
+
+	return statement.Exec(r.Date, r.Ticket, r.Title, r.Comment, r.Hours, r.Id)
+}
+
+func (r HoursTemplate) Insert() (sql.Result, error) {
+	statement, _ := r.db.Prepare(
+		"INSERT INTO hours_template (ticket, title, comment, hours) VALUES (?, ?, ?, ?)",
+	)
+	defer statement.Close()
+
+	return statement.Exec(r.Ticket, r.Title, r.Comment, r.Hours)
+}
+
+func (r HoursTemplate) Update() (sql.Result, error) {
+	statement, _ := r.db.Prepare(
+		"UPDATE hours_template SET ticket = ?, title = ?, comment = ?, hours = ? WHERE id = ?",
+	)
+	defer statement.Close()
+
+	return statement.Exec(r.Ticket, r.Title, r.Comment, r.Hours, r.Id)
 }
