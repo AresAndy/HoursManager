@@ -12,12 +12,11 @@
     <div class="col-md-2">
         <div class="btn-group float-right" role="group">
             <button class="btn btn-primary" id="add" type="button">Add</button>
-            <button class="btn btn-danger" id="delete" type="button">Delete</button>
         </div>
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-12" style="max-height: 275px; overflow-y: auto;">
         <table class="table table-striped">
             <thead>
                 <th></th>
@@ -40,7 +39,6 @@
                     <td>
                         <input type="button" class="btn btn-info edit" data-id="{{.Id}}" value="Edit">
                         <input type="button" class="btn btn-info dup" data-id="{{.Id}}" value="Duplicate">
-                        <input type="button" class="btn btn-danger delete" data-id="{{.Id}}" value="Delete">
                     <td>
                 </tr>
                 {{end}}

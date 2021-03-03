@@ -48,6 +48,11 @@ func AppendHoursRecordHeader(w table.Writer) {
 	w.AppendSeparator()
 }
 
+func AppendHoursTemplatesRecordHeader(w table.Writer) {
+	w.AppendHeader(table.Row{"Id", "Ticket", "Title", "Comment", "Hours"})
+	w.AppendSeparator()
+}
+
 func AppendHoursCompatRecordHeader(w table.Writer) {
 	w.AppendHeader(table.Row{"Date", "Ticket", "Hours"})
 	w.AppendSeparator()
@@ -60,6 +65,11 @@ func AppendHoursCalcRecordHeader(w table.Writer) {
 
 func (r Hours) AppendRow(w table.Writer) {
 	w.AppendRow([]interface{}{r.Id, r.Date, r.Ticket, r.Title, r.Comment, r.Hours})
+	w.AppendSeparator()
+}
+
+func (r HoursTemplate) AppendRow(w table.Writer) {
+	w.AppendRow([]interface{}{r.Id, r.Ticket, r.Title, r.Comment, r.Hours})
 	w.AppendSeparator()
 }
 
@@ -222,7 +232,7 @@ func (r Hours) Update() (sql.Result, error) {
 
 func (r HoursTemplate) Insert() (sql.Result, error) {
 	statement, _ := r.db.Prepare(
-		"INSERT INTO hours_template (ticket, title, comment, hours) VALUES (?, ?, ?, ?)",
+		"INSERT INTO hours_templates (ticket, title, comment, hours) VALUES (?, ?, ?, ?)",
 	)
 	defer statement.Close()
 
@@ -231,7 +241,7 @@ func (r HoursTemplate) Insert() (sql.Result, error) {
 
 func (r HoursTemplate) Update() (sql.Result, error) {
 	statement, _ := r.db.Prepare(
-		"UPDATE hours_template SET ticket = ?, title = ?, comment = ?, hours = ? WHERE id = ?",
+		"UPDATE hours_templates SET ticket = ?, title = ?, comment = ?, hours = ? WHERE id = ?",
 	)
 	defer statement.Close()
 

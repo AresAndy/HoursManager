@@ -199,6 +199,29 @@ func getHour(cnt di.Container, id int) (records.Hours, error) {
 	return hour, nil
 }
 
+func getHourTemplate(cnt di.Container, id int) (records.HoursTemplate, error) {
+	var hourTemplate records.HoursTemplate
+	db, err := cnt.SafeGet("db")
+
+	if err != nil {
+		log.Fatal("show di error: " + err.Error())
+		return hourTemplate, err
+	}
+
+	statement, _ := db.(*sql.DB).Prepare("SELECT * FROM hours_templates WHERE id = ?")
+	defer statement.Close()
+
+	row := statement.QueryRow(id)
+	err = row.Scan(&hourTemplate.Id, &hourTemplate.Ticket, &hourTemplate.Title, &hourTemplate.Comment, &hourTemplate.Hours)
+
+	if err != nil {
+		log.Fatal("show di error: " + err.Error())
+		return hourTemplate, err
+	}
+
+	return hourTemplate, nil
+}
+
 func showTemplates(cnt di.Container) (*sql.Rows, error) {
 	db, err := cnt.SafeGet("db")
 
@@ -224,6 +247,28 @@ func doShow(cnt di.Container) {
 
 	for rows.Next() {
 		var row records.Hours
+
+		row.Scan(rows)
+		row.AppendRow(t)
+	}
+
+	t.Render()
+}
+
+func doShowTemplates(cnt di.Container) {
+	rows, err := showTemplates(cnt)
+	defer rows.Close()
+
+	if err != nil {
+		log.Fatal("doShowTemplates error: " + err.Error())
+	}
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	records.AppendHoursTemplatesRecordHeader(t)
+
+	for rows.Next() {
+		var row records.HoursTemplate
 
 		row.Scan(rows)
 		row.AppendRow(t)
@@ -262,6 +307,9 @@ func main() {
 	switch os.Args[1] {
 	case "show":
 		doShow(cnt)
+
+	case "showTemplates":
+		doShowTemplates(cnt)
 
 	case "compat":
 		doCompat(cnt)

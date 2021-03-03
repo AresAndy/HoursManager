@@ -10,10 +10,10 @@
         </div>
         <div class="modal-body">
             <label for="modal-date">Date</label><input type="date" class="form-control" id="modal-date" value="{{.now}}"><br>
-            <label for="modal-ticket">Ticket</label><input type="text" class="form-control" id="modal-ticket"><br>
-            <label for="modal-title">Title</label><input type="text" class="form-control" id="modal-title"><br>
-            <label for="modal-comment">Comment</label><input type="text" class="form-control" id="modal-comment"><br>
-            <label for="modal-hours">Hours</label><input type="number" class="form-control" min="0" multiple="0.05" value="0.00" id="modal-hours"><br>
+            <label for="modal-ticket">Ticket</label><input type="text" value="{{.hourTemplate.Ticket}}" class="form-control" id="modal-ticket"><br>
+            <label for="modal-title">Title</label><input type="text" value="{{.hourTemplate.Title}}" class="form-control" id="modal-title"><br>
+            <label for="modal-comment">Comment</label><input type="text" value="{{.hourTemplate.Comment}}" class="form-control" id="modal-comment"><br>
+            <label for="modal-hours">Hours</label><input type="number" value="{{.hourTemplate.Hours}}" class="form-control" min="0" multiple="0.05" value="0.00" id="modal-hours"><br>
             
             <input type="text" hidden id="modal-hour-id" value="">
         </div>

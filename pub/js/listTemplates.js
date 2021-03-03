@@ -6,8 +6,8 @@ $(function () {
 
         $(modalSel).load("templates/add", function () {
             $("#modal-save-template").click(function () {
-                $.post("templates/add", {
-                    id: $("#modal-hour-id").val(),
+                $.post("templates/edit", {
+                    id: $("#modal-hour-template-id").val(),
                     ticket: $("#modal-ticket").val(),
                     title: $("#modal-title").val(),
                     comment: $("#modal-comment").val(),

@@ -49,17 +49,38 @@ $(function () {
         });
     });
 
+    $("#addTemplate").click(function () {
+        $(modalSel).load("hours/addTemplate", function () {
+            $("#modal-use-template").click(function () {
+                let templateId = $("#selector").val();
+
+                if (templateId != -1) {
+                    $(modalSel).load("hours/addFromTemplate", { id: templateId }, function () {
+                        $("#modal-save-hour").click(saveHour);
+
+                        $(modalSel).modal("show");
+                    });
+                } else {
+                    alert("Please choose a valid template");
+                    $("#selector").focus();
+                }
+            });
+
+            $(modalSel).modal("show");
+        });
+    });
+
     $("#delete").click(function () {
         let ids = $('input[type="checkbox"][data-id]:checked').get().map((el) => $(el).data("id"));
 
         if ((ids != []) && (confirm("Are you sure you want to delete the selected rows?"))) {
             $.post("hours/delete", { ids: ids })
-            .then(function () {
-                window.location.reload();
-            })
-            .fail(function () {
-                alert("There has been an error, check the webserver logs")
-            });
+                .then(function () {
+                    window.location.reload();
+                })
+                .fail(function () {
+                    alert("There has been an error, check the webserver logs")
+                });
         }
     });
 
